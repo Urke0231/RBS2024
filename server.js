@@ -9,15 +9,15 @@ app.use(bodyParser.json());
 
 app.use(express.static(__dirname)); 
 
-app.post('/login', async (req, res) => {
+app.post('/unsafe-login', async (req, res) => {
   const { username, password } = req.body;
 
-  const query = `SELECT * FROM users WHERE username = '${username}' AND password = '${password}'`;
+  const unsafeQuery = `SELECT * FROM users WHERE username = '${username}' AND password = '${password}'`;
 
   try {
-    const rows = await db.query(query);
+    const rows = await db.query(unsafeQuery);
     if (rows.length > 0) {
-      res.json({ success: true });
+       res.json({ success: true });
     } else {
       res.json({ success: false, message: 'Invalid username or password' });
     }
@@ -27,6 +27,23 @@ app.post('/login', async (req, res) => {
   }
 });
 
+app.post('/safe-login', async (req, res) => {
+  const { username, password } = req.body;
+
+  const safeQuery = `SELECT * FROM users WHERE username = ? AND password = ?`;
+
+  try {
+    const rows = await db.query(safeQuery, [username, password]);
+    if (rows.length > 0) {
+       res.json({ success: true });
+    } else {
+      res.json({ success: false, message: 'Invalid username or password' });
+    }
+  } catch (err) {
+    console.error('Error executing query:', err.message);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
 (async () => {
   try {
     await db.initialize();
