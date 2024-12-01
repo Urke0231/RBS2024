@@ -26,6 +26,27 @@
         alert(`Login failed via ${route} route: ${result.message}`);
       }
     }
+
+    async function BufferOverflow(event,route) {
+      event.preventDefault();
+
+      const bufferData = document.getElementById("8NumberPin").value;
+
+      const response = await fetch(`/${route}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({bufferData})
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        alert(`${route} returned success!`);
+      } else {
+        alert(`${route} error: ${result.message}`);
+      }
+    }
   </script>
 </head>
 <body>
@@ -35,8 +56,25 @@
     <input type="text" id="username" name="username" required><br><br>
     <label for="password">Password:</label>
     <input type="password" id="password" name="password" required><br><br>
+    <label for="8NumberPin">8 number pin:</label>
+    <input type="text" id="8NumberPin" name="8NumberPin" required><br><br>
     <button onclick="handleLogin(event, 'unsafe-login')">Unsafe Login</button>
     <button onclick="handleLogin(event, 'safe-login')">Safe Login</button>
+    <button onclick="BufferOverflow(event, 'unsafe-buffer')">Unsafe buffer</button>
+
+
+  </form>
+<br>
+  <h1>Upload a File</h1>
+  <form action="http://localhost:3000/upload" method="POST" enctype="multipart/form-data">
+    <input type="file" name="file" required>
+    <button type="submit">Upload File</button>
+  </form>
+  <br>
+  <h1>Upload a File</h1>
+  <form action="http://localhost:3000/safe-upload" method="POST" enctype="multipart/form-data">
+    <input type="file" name="file" required>
+    <button type="submit">safe upload</button>
   </form>
 </body>
 </html>

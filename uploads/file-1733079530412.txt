@@ -1,0 +1,62 @@
+1.	zadatak
+a)	sigma Status=NULL (Autobus)
+b)	tau Broj asc (sigma BrStanica>20 and (Linija.Od='Zeleni Venac' or Linija.Do='Zeleni Venac') (Linija))
+c)	Autobus ∪ π 'BG-987-JA' -> Registracija, 'garaza'->Status, 110->Kapacitet, 53 -> Linija (Autobus)
+d)	pi Registracija,Od->PocetnaStanica,Do->PoslednjaStanica (Autobus ⨝ Autobus.Linija=Linija.Broj Linija)
+e)	 VelikiAutobusi= sigma Kapacitet>100 (Autobus)
+MaliAutobusi= pi Linija (Autobus) - pi Linija (VelikiAutobusi)
+π Broj, Od, Do (Linija) ⨝  Broj=Linija (π Linija (MaliAutobusi))
+f)	sigma Registracija≠'BG-342-SC' and Registracija≠'BG-122-XX' (Autobus)
+g) NoviAutobusi=sigma Registracija≠'BG-342-SC' and Registracija≠'BG-122-XX' (Autobus)
+
+Potencijalni=pi Registracija ,Status<-'Voznja', Kapacitet, Linija (sigma Status='garaza' and (Linija=53 or Linija=84) (NoviAutobusi))
+sigma ¬(Status='garaza' and (Linija=53 or Linija=84)) (NoviAutobusi) union Potencijalni
+
+h)γ avg(Kapacitet) -> Prosek84 (sigma Linija=84 (Autobus))
+i)γ Linija; avg(Kapacitet) -> Prosek84 (Autobus)
+
+2.
+a)pi Naziv, Datum, Vreme<-Od,Gledanost, Voditelj (sigma Tip='Film' (Program))
+b)
+τ Datum DESC, Vreme DESC, Gledanost ASC (pi Naziv, Datum, Vreme<-Od,Gledanost, Voditelj (Program ⨝ Voditelj=Sif Voditelj))
+v)sigma Voditelj=NULL and Tip ≠'Film' (Program)
+g)pi Naziv (Program)- pi Naziv(sigma Gledanost<20 and Tip='Kviz' (Program))
+d)prvo=pi Naziv,Datum,Od,Voditelj<-6,Gledanost<-0,Tip (sigma Naziv='SAT' (Program))
+drugo= sigma Naziv≠'SAT' (Program)
+prvo union drugo
+dj)
+e)
+zh){
+Naziv:string, Datum:number, Od:number, Voditelj:number, Gledanost:number, Tip:string
+'Oko', NULL, NULL, 6, NULL , 'Info'
+}
+union Program
+
+
+3.
+a)prvi=pi User.IDUser , Content.IDOwner ( sigma User.IDUser≠Like.IDContent (User ⨝User.IDUser=Like.IDUser Like ⨝Content.IDContent=Like.IDContent Content))
+
+prijatelji=pi IDContent,IDUserResponse (sigma Accepted=1 (Friend))
+prijatelj1=prijatelji union pi IDUserResponse,IDContent (prijatelji)
+
+
+prvi-prijatelj1
+
+b)
+a=γ User.IDUser; count(Like.IDUser)->Broj (User ⨝ IDUser=IDOwner Content ⨝ Content.IDContent=Status.IDContent Status ⨝ Status.IDContent=Like.IDContent Like)
+b=γ max(Broj)->Max a
+
+a ⨝ Broj=Max b
+
+v)
+
+
+k1 2023
+1)pomocna= sigma Vrednost>10000 (Projekat)
+pi Menadzer.SifR,Projekat.SifP,Projekat.Vrednost,Projekat1.SifP,Projekat1.Vrednost(Menadzer ⨝ Menadzer.SifR=Projekat.SifR  pi SifP,SifR,Vrednost(pomocna) ⨝ Menadzer.SifR=Projekat1.SifR and Projekat.SifP ≠ Projekat1.SifP and Projekat.SifP<Projekat1.SifP pi SifP,SifR,Vrednost(ρ Projekat1 (pomocna)))
+2)ETF=sigma Naziv='ETF'(Projekat)
+alfa=pi Projekat.SifP->a,Posao.SifJ->b, Angazman.SifR (ETF ⨝ Projekat.SifP=Posao.SifP Posao ⨝ Posao.SifJ=Angazman.SifJ Angazman) 
+beta=pi Projekat.SifP->a,Posao.SifJ->b (ETF ⨝ Projekat.SifP=Posao.SifP Posao)
+-- pX(r)- pX((pX(r)´s)-r)
+alfa / beta
+3) Select SifR from Angazman join Posao on SifJ where BrPlaniranihProgramera >5 and BrPlaniranihProgramera<10
