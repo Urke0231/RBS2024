@@ -198,6 +198,47 @@ app.post('/safe-upload', upload.single('file'), safeUpload, (req, res) => {
   res.send(`File uploaded successfully: ${req.file.name}`);
 });
 
+app.post('/post-comment', async (req, res) => {
+  const { user_id, comment } = req.body;
+
+  if (!user_id || !comment) {
+    return res.status(400).json({ success: false, message: 'Missing user_id or comment '+JSON.stringify(req.body) });
+  }
+
+  const insertCommentQuery = `INSERT INTO comments (user_id, comment) VALUES (?, ?)`;
+
+  try {
+    await db.query(insertCommentQuery, [user_id, comment]);
+    res.json({ success: true, message: 'Comment submitted successfully' });
+  } catch (err) {
+    console.error('Error inserting comment:', err.message);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+app.get('/get-comments', async (req, res) => {
+  const { user_id } = req.query;
+
+  let getCommentsQuery = `SELECT comments.id, comments.comment, comments.created_at
+                          FROM comments `;
+  const params = [];
+
+  // if (user_id) {
+  //   getCommentsQuery += ` WHERE user_id = ?`;
+  //   params.push(user_id);
+  // }
+
+  getCommentsQuery += ` ORDER BY comments.created_at DESC`;
+
+  try {
+    const rows = await db.query(getCommentsQuery, params);
+    res.json({ success: true, comments: rows });
+  } catch (err) {
+    console.error('Error fetching comments:', err.message);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
 (async () => {
   try {
     await db.initialize();

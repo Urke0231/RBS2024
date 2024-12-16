@@ -64,6 +64,38 @@ async function initialize() {
           });
         }
       );
+      db.run(
+        `CREATE TABLE IF NOT EXISTS users (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          username TEXT NOT NULL UNIQUE,
+          password TEXT NOT NULL,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )`,
+        (err) => {
+          if (err) {
+            console.error('Error creating users table:', err.message);
+          } else {
+            console.log('Users table created or already exists.');
+          }
+        }
+      );
+      
+      db.run(
+        `CREATE TABLE IF NOT EXISTS comments (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          user_id INTEGER NOT NULL,
+          comment TEXT NOT NULL,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (user_id) REFERENCES users(id)
+        )`,
+        (err) => {
+          if (err) {
+            console.error('Error creating comments table:', err.message);
+          } else {
+            console.log('Comments table created or already exists.');
+          }
+        }
+      );
     });
   });
 }
