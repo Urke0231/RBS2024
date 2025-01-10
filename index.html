@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login and Comments</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.4/purify.min.js"></script>
   <script>
     async function handleLogin(event, route) {
       event.preventDefault();
@@ -70,7 +71,12 @@
       const result = await response.json();
       if (result.success) {
         alert("Comment posted successfully!");
-        loadComments(); // Refresh the comment list
+        const loadType = document.querySelector('input[name="loadType"]:checked').value;
+        if (loadType === "safe") {
+          safeLoadComments(); // Refresh the comment list
+        } else {
+          loadComments(); // Refresh the comment list
+        }
       } else {
         alert(`Failed to post comment: ${result.message}`);
       }
@@ -92,7 +98,7 @@
       }
     }
 
-    async function loadComments() {
+  async function loadComments() {
   const response = await fetch('/get-comments');
   const result = await response.json();
 
@@ -114,8 +120,36 @@
   }
 }
 
+
+async function safeLoadComments() {
+    const response = await fetch('/get-comments');
+    const result = await response.json();
+
+    const commentSection = document.getElementById("commentSection");
+    commentSection.innerHTML = ""; // Clear existing comments
+
+    if (result.success && result.comments.length > 0) {
+      result.comments.forEach(comment => {
+        // Sanitize the comment to prevent XSS
+        const safeComment = DOMPurify.sanitize(comment.comment);
+
+        commentSection.innerHTML += `
+          <div class="comment">
+            <p><strong>${comment.id}:</strong> ${safeComment}</p>
+            <button onclick="deleteComment(event, '${comment.id}')">Delete</button>
+          </div>
+        `;
+      });
+    } else {
+      commentSection.innerHTML = "<p>No comments available.</p>";
+    }
+  }
+
     // Load comments on page load
-    window.onload = loadComments;
+    //window.onload = loadComments;
+   
+    window.onload = safeLoadComments;
+    
   </script>
   <style>
     .comment {
@@ -150,7 +184,12 @@
     <input type="file" name="file" required>
     <button type="submit">Safe Upload</button>
   </form>
-
+  <label>
+    <input type="radio" name="loadType" value="safe" checked> Safe comments
+  </label>
+  <label>
+    <input type="radio" name="loadType" value="unsafe"> Unsafe comments
+  </label>
   <h1>Comments</h1>
   <form>
     <label for="commentUsername">Username:</label>
